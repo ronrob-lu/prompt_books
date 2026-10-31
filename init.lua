@@ -1,14 +1,16 @@
--- Mod: books
--- Read-only books initialized from books/ folder and given on player join
+-- Mod: prompt_books
+-- Read-only prompt documentation books initialized from books/ folder and given on player join
 
-books = {}
-books.registered_books = {}
-books.player_state = {}
+prompt_books = {}
+prompt_books.registered_books = {}
+prompt_books.player_state = {}
 
-local modname = core.get_current_modname and core.get_current_modname() or "books"
+-- Backwards compatibility alias
+books = prompt_books
+
+local modname = core.get_current_modname and core.get_current_modname() or "prompt_books"
 local modpath = core.get_modpath and core.get_modpath(modname) or "."
 
--- Convert markdown formatting to Minetest hypertext tags
 -- Read file contents
 local function read_file(filepath)
 	local file, err = io.open(filepath, "r")
@@ -64,7 +66,7 @@ local function parse_book_file(content, fallback_title)
 end
 
 -- Build formspec for book GUI
-function books.get_formspec(book_data, page)
+function prompt_books.get_formspec(book_data, page)
 	local total_pages = #book_data.pages
 	local current_page = math.max(1, math.min(page or 1, total_pages))
 	local content = book_data.pages[current_page] or ""
@@ -94,38 +96,38 @@ function books.get_formspec(book_data, page)
 end
 
 -- Display book formspec to player
-function books.show_book(player, item_name, page)
+function prompt_books.show_book(player, item_name, page)
 	if not player or not player:is_player() then return end
 	local player_name = player:get_player_name()
-	local book_data = books.registered_books[item_name]
+	local book_data = prompt_books.registered_books[item_name]
 	if not book_data then return end
 
-	books.player_state[player_name] = {
+	prompt_books.player_state[player_name] = {
 		item_name = item_name,
 		page = page or 1
 	}
 
-	local formspec = books.get_formspec(book_data, page or 1)
-	core.show_formspec(player_name, "books:reader", formspec)
+	local formspec = prompt_books.get_formspec(book_data, page or 1)
+	core.show_formspec(player_name, "prompt_books:reader", formspec)
 end
 
 -- Register formspec button handler
 if core.register_on_player_receive_fields then
 	core.register_on_player_receive_fields(function(player, formname, fields)
-		if formname ~= "books:reader" or not player then return end
+		if (formname ~= "prompt_books:reader" and formname ~= "books:reader") or not player then return end
 		local player_name = player:get_player_name()
-		local state = books.player_state[player_name]
+		local state = prompt_books.player_state[player_name]
 		if not state then return end
 
-		local book_data = books.registered_books[state.item_name]
+		local book_data = prompt_books.registered_books[state.item_name]
 		if not book_data then return end
 
 		if fields.books_prev then
 			state.page = math.max(1, state.page - 1)
-			books.show_book(player, state.item_name, state.page)
+			prompt_books.show_book(player, state.item_name, state.page)
 		elseif fields.books_next then
 			state.page = math.min(#book_data.pages, state.page + 1)
-			books.show_book(player, state.item_name, state.page)
+			prompt_books.show_book(player, state.item_name, state.page)
 		end
 	end)
 end
@@ -154,14 +156,6 @@ local function load_books_from_folder()
 		end
 	end
 
-	-- Fallback list if get_dir_list is empty or unavailable
-	if #file_list == 0 then
-		file_list = {
-			"book_1.md", "book_2.md", "book_3.md", "book_4.md",
-			"book_5.md", "book_6.md", "book_7.md", "book_8.md"
-		}
-	end
-
 	if texture_count == 0 then
 		texture_count = 8
 	end
@@ -180,13 +174,13 @@ local function load_books_from_folder()
 			local tex_idx = ((parsed_idx - 1) % texture_count) + 1
 
 			local book_id = fname:gsub("%..+$", "")
-			local item_name = "books:" .. book_id
-			local fallback_title = "Book " .. parsed_idx
+			local item_name = modname .. ":" .. book_id
+			local fallback_title = "Prompt Book " .. parsed_idx
 			local title, pages = parse_book_file(content, fallback_title)
 
 			local texture_name = "Book" .. tex_idx .. "_Closed.png"
 
-			books.registered_books[item_name] = {
+			prompt_books.registered_books[item_name] = {
 				id = book_id,
 				title = title,
 				content = content,
@@ -199,19 +193,19 @@ local function load_books_from_folder()
 					description = title,
 					inventory_image = texture_name,
 					wield_image = texture_name,
-					groups = {book = 1, read_only_book = 1},
+					groups = {book = 1, read_only_book = 1, prompt_book = 1},
 					_read_only = true,
 
 					on_use = function(itemstack, user, pointed_thing)
 						if user and user:is_player() then
-							books.show_book(user, item_name, 1)
+							prompt_books.show_book(user, item_name, 1)
 						end
 						return itemstack
 					end,
 
 					on_secondary_use = function(itemstack, user, pointed_thing)
 						if user and user:is_player() then
-							books.show_book(user, item_name, 1)
+							prompt_books.show_book(user, item_name, 1)
 						end
 						return itemstack
 					end,

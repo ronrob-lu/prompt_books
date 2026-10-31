@@ -1,74 +1,62 @@
-# 📚 Books Mod for Minetest / Luanti
+# 📚 prompt_books Mod for Luanti / Minetest
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 
-Transform your Minetest / Luanti worlds into immersive libraries and rich story-driven realms! The **Books** mod brings custom book item icons, dynamic Markdown text parsing, and elegant multi-page reading GUIs right into your game.
+Transform your Minetest / Luanti worlds into an AI-driven, interactive architectural and mechanical library! The **`prompt_books`** mod serves as the official in-game Luanti documentation repository for all published mods created by **ronrob-lu**.
+
+Every book in `books/` is crafted with structured, highly detailed guides, node and entity definitions, schematics, and autonomous prompt instructions. These books allow both players and **Luanti AI NPCs** (such as `llm_npc_core` or `auto_we_builder`) to read documentation in-game and autonomously build, spawn, configure, and maintain the contents of the mods in the world!
 
 ---
 
 ## ✨ Features
 
-- 📖 **Read-Only Inventory Items**: 8 unique book items with distinct closed book cover icons. Books are inventory items (craftitems) designed for reading and collection.
-- 📝 **Markdown-Powered Library**: Automatically reads `.md` files directly from the `books/` directory and converts them into read-only in-game books!
-- 📑 **Multi-Page Reader GUI**: Clean, interactive book reading interface with background textures and seamless previous/next page navigation.
-- ✂️ **Selectable Text**: Text inside the books can be easily selected and copied.
-- 🎒 **Automatic Starter Distribution**: Automatically provides registered books into the inventory of joining players so nobody misses the adventure.
-- 🛠️ **Fully Customizable**: Adding a new book is as simple as placing a new `.md` file in the `books/` folder!
+- 🤖 **AI NPC Blueprint & Prompt Manuals**: Books provide exact node IDs, entity names, parameters, building recipes, and step-by-step assembly instructions optimized for autonomous LLM NPCs.
+- 📖 **Complete ronrob-lu Mod Library**: Contains specialized documentation books for every published mod repository by ronrob-lu.
+- 📝 **Markdown-Powered Engine**: Automatically parses `.md` files directly from the `books/` directory into interactive in-game craftitem books.
+- 📑 **Multi-Page Reader GUI**: Clean, interactive book reading interface with custom page formatting and seamless `< Previous` / `Next >` navigation.
+- ✂️ **Selectable & Copyable Text**: Text inside the books can be easily selected, inspected, or ingested by LLM agents.
+- 🛠️ **Fully Extensible**: Adding new in-game documentation or AI prompts is as simple as dropping a new `.md` file into the `books/` folder!
 
 ---
 
 ## 🚀 Installation
 
-1. Download or clone this repository:
+1. Download or clone this repository into your mods directory:
    ```bash
-   git clone https://github.com/ronrob-lu/books.git books
+   git clone https://github.com/ronrob-lu/prompt_books.git prompt_books
    ```
-2. Place the `books` folder into your Minetest/Luanti `mods/` directory.
-3. Enable the `books` mod in your world configuration or `world.mt`.
+2. Place the `prompt_books` folder into your Minetest/Luanti `mods/` directory.
+3. Enable `prompt_books` in your world configuration or `world.mt`:
+   ```text
+   load_mod_prompt_books = true
+   ```
 
 ---
 
 ## 📖 How to Use
 
-### In-Game Usage
-- **Reading Books**: Hold a book in your hand and **left-click (use)** to open the reading GUI.
-- **Page Navigation**: Click **`< Previous`** and **`Next >`** buttons at the bottom of the book interface to turn pages.
+### For Players
+- **Reading Books**: Hold any prompt book in your hand and **left-click (use)** or **right-click** to open the reading GUI.
+- **Page Navigation**: Click **`< Previous`** and **`Next >`** buttons at the bottom of the book interface to navigate through chapters and pages.
 
-### Creating Your Own Books
-Adding new lore to your world is effortless:
-
-1. Navigate to the `books/` directory inside the mod folder.
-2. Create a new `.md` (Markdown) file, e.g., `books/book_9.md` or `books/mystic_journal.md`.
-3. Use standard Markdown formatting:
-   - `# Book Title`: Sets the main book title (first `#` line).
-   - `## Section Header`: Highlighted chapter or section headers.
-   - `---`: Inserts a page break to split content across multiple pages!
-   - `**bold text**` and `*italic text*`: Adds emphasis to your writing.
-
-#### Example Markdown File (`books/book_9.md`):
-```markdown
-# The Alchemist's Notes
-
-## Chapter 1: Rare Herbs
-
-In the high mountains grows the legendary Moonflower. Its petals shimmer under moonlight.
-
----
-## Chapter 2: Potions
-
-Combine Moonflower petals with clear spring water to craft an elixir of night vision.
-```
+### For Luanti AI NPCs
+- AI NPCs equipped with inventory inspection or text reading tools can read `prompt_books:<mod_name>` items.
+- The books are structured with:
+  1. **Mod Overview & Identifiers**: Mod name, craftitems, nodes, and entities.
+  2. **Assembly & Construction Blueprints**: Exact dimensions, block layouts, and placement coordinates.
+  3. **Configuration & Control Instructions**: Operating parameters, chat commands, and event triggers.
+  4. **AI NPC Direct Action Instructions**: Machine-actionable steps for autonomous reconstruction.
 
 ---
 
 ## 🏗️ Technical Details & API
 
-- **Mod Name**: `books`
+- **Mod Name**: `prompt_books`
 - **Dependencies**: None (Optional: `default`)
 - **Structure**:
-  - `init.lua`: Core Lua code for loading books, converting Markdown, generating formspecs, and handling events.
-  - `books/`: Contains Markdown content files (`book_1.md` through `book_8.md`).
-  - `textures/`: Contains PNG textures for books (`Book1_Closed.png` through `Book8_Closed.png`) and reading background UI.
+  - `init.lua`: Core Lua code for loading books, parsing Markdown, registering craftitems, and managing formspecs.
+  - `books/`: Contains Markdown books for each ronrob-lu repository.
+  - `textures/`: Contains PNG cover textures (`Book1_Closed.png` through `Book8_Closed.png`) and reader background (`books_bg.png`).
 
 ---
 
