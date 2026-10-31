@@ -173,7 +173,8 @@ local function load_books_from_folder()
 			local parsed_idx = num_in_name and tonumber(num_in_name) or idx
 			local tex_idx = ((parsed_idx - 1) % texture_count) + 1
 
-			local book_id = fname:gsub("%..+$", "")
+			local raw_id = fname:gsub("%..+$", "")
+			local book_id = raw_id:gsub("[^%w_]", "_")
 			local item_name = modname .. ":" .. book_id
 			local fallback_title = "Prompt Book " .. parsed_idx
 			local title, pages = parse_book_file(content, fallback_title)

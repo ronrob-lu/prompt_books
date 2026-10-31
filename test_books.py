@@ -72,11 +72,26 @@ class TestPromptBooksMod(unittest.TestCase):
 			return str:gsub("\\\\", "\\\\\\\\"):gsub("%]", "\\\\]"):gsub("%[", "\\\\[")
 		end
 
+		local function check_modname_prefix(name)
+			local expected_prefix = (core.get_current_modname() or "") .. ":"
+			if name:sub(1, #expected_prefix) ~= expected_prefix then
+				error("Name " .. name .. " does not follow naming conventions: " ..
+					"\\"" .. expected_prefix .. "\\" or \\":\\" prefix required")
+			end
+			local subname = name:sub(#expected_prefix + 1)
+			if subname:find("[^%w_]") then
+				error("Name " .. name .. " does not follow naming conventions: contains unallowed characters")
+			end
+			return name
+		end
+
 		function core.register_craftitem(name, def)
+			check_modname_prefix(name)
 			core.registered_craftitems[name] = def
 		end
 
 		function core.register_item(name, def)
+			check_modname_prefix(name)
 			core.registered_craftitems[name] = def
 		end
 
@@ -134,6 +149,7 @@ class TestPromptBooksMod(unittest.TestCase):
 			assert(v.pages ~= nil and #v.pages > 0, "Book " .. k .. " must have pages")
 			assert(core.registered_craftitems[k] ~= nil, "Craftitem " .. k .. " must be registered in Minetest")
 			assert(core.registered_craftitems[k]._read_only == true, "Book craftitem " .. k .. " must be read-only")
+			assert(not k:match("[^%w_:]"), "Item name " .. k .. " must only contain alphanumeric characters and underscores")
 		end
 		assert(count == {num_files}, "Expected {num_files} books to be registered, got " .. count)
 
