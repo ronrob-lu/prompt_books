@@ -3,13 +3,13 @@ import os
 import sys
 import unittest
 
-class TestBooksMod(unittest.TestCase):
+class TestPromptBooksMod(unittest.TestCase):
 
 	def test_01_mod_conf(self):
 		self.assertTrue(os.path.exists("mod.conf"), "mod.conf does not exist")
 		with open("mod.conf", "r") as f:
 			content = f.read()
-		self.assertIn("name = books", content, "mod.conf must define name = books")
+		self.assertIn("name = prompt_books", content, "mod.conf must define name = prompt_books")
 
 		self.assertTrue(os.path.exists("README.md"), "README.md does not exist")
 		self.assertTrue(os.path.exists("LICENSE.md"), "LICENSE.md does not exist")
@@ -26,8 +26,8 @@ class TestBooksMod(unittest.TestCase):
 		self.assertTrue(len(book_textures) > 0, "At least one book texture must exist")
 		self.assertTrue(os.path.exists("textures/books_bg.png"), "textures/books_bg.png missing")
 
-		# Verify models/ directory no longer exists (books are craftitems)
-		self.assertFalse(os.path.exists("models"), "models/ directory should be removed")
+		# Verify models/ directory does not exist
+		self.assertFalse(os.path.exists("models"), "models/ directory should not exist")
 
 		# Check that any .md files in books/ are actually readable files
 		md_files = glob.glob("books/*.md")
@@ -36,7 +36,7 @@ class TestBooksMod(unittest.TestCase):
 			self.assertTrue(os.path.isfile(md), f"Markdown book {md} missing or not a file")
 
 	def test_03_lua_mock_and_init(self):
-		"""Mock Minetest API and execute init.lua to verify book craftitem registration, formspec, and inventory insertion."""
+		"""Mock Minetest API and execute init.lua to verify prompt_books craftitem registration, formspec, and inventory insertion."""
 		import lupa
 		import glob
 		lua = lupa.LuaRuntime(unpack_returned_tuples=True)
@@ -60,7 +60,7 @@ class TestBooksMod(unittest.TestCase):
 		}}
 
 		function core.get_current_modname()
-			return "books"
+			return "prompt_books"
 		end
 
 		function core.get_modpath(modname)
@@ -125,10 +125,10 @@ class TestBooksMod(unittest.TestCase):
 		-- Load init.lua
 		dofile("init.lua")
 
-		-- Verify books were registered
-		assert(books ~= nil, "Global books table must exist")
+		-- Verify prompt_books registered
+		assert(prompt_books ~= nil, "Global prompt_books table must exist")
 		local count = 0
-		for k, v in pairs(books.registered_books) do
+		for k, v in pairs(prompt_books.registered_books) do
 			count = count + 1
 			assert(v.title ~= nil and #v.title > 0, "Book " .. k .. " must have a title")
 			assert(v.pages ~= nil and #v.pages > 0, "Book " .. k .. " must have pages")
@@ -138,9 +138,8 @@ class TestBooksMod(unittest.TestCase):
 		assert(count == {num_files}, "Expected {num_files} books to be registered, got " .. count)
 
 		-- Verify formspec generation and button navigation
-		-- dynamically pick the first registered book id
 		local first_book_id = nil
-		for k, _ in pairs(books.registered_books) do
+		for k, _ in pairs(prompt_books.registered_books) do
 			first_book_id = k
 			break
 		end
@@ -153,13 +152,13 @@ class TestBooksMod(unittest.TestCase):
 
 		assert(#shown_formspecs > 0, "show_formspec should have been called")
 		local last_form = shown_formspecs[#shown_formspecs]
-		assert(last_form.name == "books:reader", "Formspec name must be books:reader")
+		assert(last_form.name == "prompt_books:reader", "Formspec name must be prompt_books:reader")
 		assert(last_form.spec:find("background"), "Formspec must contain background")
 
 		-- Test next page field receive
 		assert(#core.registered_callbacks.on_receive_fields > 0, "receive_fields callback must be registered")
 		local field_cb = core.registered_callbacks.on_receive_fields[1]
-		field_cb(mock_player, "books:reader", {{books_next = "true"}})
+		field_cb(mock_player, "prompt_books:reader", {{books_next = "true"}})
 
 		print("LUA_TESTS_PASSED_SUCCESSFULLY")
 		"""
